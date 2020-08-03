@@ -1,0 +1,9 @@
+Library/
+Temp/
+.vs/
+obj/
+*.csproj
+*.sln
+bin/
+RunSCript/CoreDLL/
+RunSCript/Obfuscator_Output/

@@ -1,0 +1,60 @@
+﻿#pragma kernel CSMain
+//reference form https://www.3dgep.com/forward-plus/
+//reference form https://github.com/pieroaccardi/Unity_ForwardPlus
+
+#define BLOCK_SIZE 16
+#include "Common.cginc"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+RWStructuredBuffer<Frustum> _Frustums;
+
+struct CS_INPUT
+{
+	uint3 Gid : SV_GroupID;
+	uint3 GTid : SV_GroupThreadID;
+	uint3 DTid : SV_DispatchThreadID;
+	uint GI : SV_GroupIndex;
+};
+
+//float4 data; //inverse of the resolution and number of groups
+//float4 _ScreenResolutionData;
+
+float2 _ScreenSizeRatio;
+uint2 _FrustumTileSize;
+
+float4x4 _InverseProjection;
+
+[numthreads(BLOCK_SIZE, BLOCK_SIZE,1)]
+void CSMain (CS_INPUT input)
+{	
+	float2 points[4];
+	points[0] = input.DTid.xy * BLOCK_SIZE * 
+		_ScreenSizeRatio.xy * float2(2, -2) - float2(1, -1);
+	points[1] = (input.DTid.xy + float2(1, 0)) * BLOCK_SIZE * _ScreenSizeRatio.xy *
+		float2(2, -2) - float2(1, -1);
+	points[2] = (input.DTid.xy + float2(0, 1)) * BLOCK_SIZE * _ScreenSizeRatio.xy *
+		float2(2, -2) - float2(1, -1);
+	points[3] = (input.DTid.xy + float2(1, 1)) * BLOCK_SIZE * _ScreenSizeRatio.xy *
+		float2(2, -2) - float2(1, -1);
+
+	float4 viewSpacePoints[4];
+	for (int i = 0; i < 4; ++i)
+		//z from 1 to 0 
+		viewSpacePoints[i] = NDCtoViewSpace(float4(points[i], 0, 1), _InverseProjection);
+
+	float3 origin = float3(0, 0, 0);
+
+	Frustum frustum;
+
+	frustum.planes[0] = ComputePlane(origin, viewSpacePoints[2], viewSpacePoints[0]);
+	frustum.planes[1] = ComputePlane(origin, viewSpacePoints[0], viewSpacePoints[1]);
+	frustum.planes[2] = ComputePlane(origin, viewSpacePoints[1], viewSpacePoints[3]);
+	frustum.planes[3] = ComputePlane(origin, viewSpacePoints[3], viewSpacePoints[2]);
+
+	uint anotherIndex = input.DTid.y * _FrustumTileSize.x + input.DTid.x;
+
+	if ((input.DTid.x < _FrustumTileSize.x) && (input.DTid.y < _FrustumTileSize.y))
+	{
+		uint index = input.DTid.y * _FrustumTileSize.x + input.DTid.x;
+		_Frustums[index] = frustum;
+	}
+}

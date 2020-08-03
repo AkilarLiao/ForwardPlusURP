@@ -1,0 +1,120 @@
+﻿#pragma kernel CSMain
+//reference form https://www.3dgep.com/forward-plus/
+//reference form https://github.com/pieroaccardi/Unity_ForwardPlus
+
+#define BLOCK_SIZE 16
+
+#include "Common.cginc"
+
+struct CS_INPUT
+{
+	uint3 Gid : SV_GroupID;
+	uint3 GTid : SV_GroupThreadID;
+	//SV_DispatchThreadID = SV_GroupID * numthreads
+		//+ SV_GroupThreadID;
+	uint3 DTid : SV_DispatchThreadID;
+	//The "flattened" index of a compute shader thread within a thread group,
+	//which turns the multi - dimensional SV_GroupThreadID into a 1D 
+	//value.SV_GroupIndex varies from 0 to(numthreadsX * numthreadsY * numThreadsZ) – 1.
+	uint GI : SV_GroupIndex;
+};
+
+//float4 _ScreenResolutionData;
+float2 _ScreenSizeRatio;
+uint2 _FrustumTileSize;
+float4x4 _InverseProjection;
+float4x4 _WorldToViewMatrix;
+RWStructuredBuffer<Frustum> _Frustums;
+Texture2D _DepthBuffer;
+StructuredBuffer<ForwardLight> _Lights;
+RWBuffer<uint> _CurrentIndex;
+RWBuffer<uint> _LightsIndexBuffer;
+RWTexture2D<uint2> _LightsGridRT;
+
+groupshared uint maxDepth;
+groupshared uint minDepth;
+groupshared uint lightsCount;
+groupshared uint startIndexOffset;
+groupshared uint indices[64]; 
+groupshared Frustum groupFrustum;
+
+void AppendLight(uint lightIndex)
+{
+	uint index;
+	//add 1 to the number of group lights
+	InterlockedAdd(lightsCount, 1, index);
+	if (index < 64)
+	{
+		//indices is the local indices list
+		indices[index] = lightIndex;
+	}
+}
+
+[numthreads(BLOCK_SIZE, BLOCK_SIZE,1)]
+void CSMain (CS_INPUT input)
+{
+	//screen coordinates
+	uint2 texcoord = input.DTid.xy;
+	texcoord.y = 1.0 / _ScreenSizeRatio.y - texcoord.y;
+	//read the depth and invert
+	float depth = 1.0 - _DepthBuffer.Load(int3(texcoord, 0)).r;
+
+	//convert to int for atomic operations
+	uint intDepth = asuint(depth);
+
+	//primo group thread
+	if (input.GI == 0)
+	{
+		minDepth = 0xffffffff;
+		maxDepth = 0;
+		lightsCount = 0;
+		groupFrustum = _Frustums[input.Gid.x + input.Gid.y * _FrustumTileSize.x];
+	}
+		
+	GroupMemoryBarrierWithGroupSync();
+
+	//atomic operations
+	InterlockedMin(minDepth, intDepth);
+	InterlockedMax(maxDepth, intDepth);
+
+	GroupMemoryBarrierWithGroupSync();
+
+	//convert to float
+	float fMin = asfloat(minDepth);
+	float fMax = asfloat(maxDepth);
+	
+	//also here the z is inverted
+	float minInViewSpace = NDCtoViewSpace(float4(0, 0, 1 - fMin, 1), _InverseProjection).z;
+	float maxInViewSpace = NDCtoViewSpace(float4(0, 0, 1 - fMax, 1), _InverseProjection).z;
+
+	//the number of thread in the group is 256, as the number of light to process,
+	//so every thread processes its own light
+	ForwardLight light = _Lights[input.GI];
+	if (light.enabled)
+	{
+		float3 lightViewSpacePosition = mul(_WorldToViewMatrix, 
+			float4(light.positionWorldSpace, 1)).xyz;
+		
+		Sphere sphere = { lightViewSpacePosition , light.range };
+
+		if (SphereInsideFrustum(sphere, groupFrustum, minInViewSpace, maxInViewSpace))
+		{
+			AppendLight(input.GI);
+		}
+	}
+
+	GroupMemoryBarrierWithGroupSync();
+
+	if (input.GI == 0) 
+	{
+		InterlockedAdd(_CurrentIndex[0], lightsCount, startIndexOffset);
+		_LightsGridRT[input.Gid.xy] = uint2(startIndexOffset, lightsCount);
+	}
+
+	GroupMemoryBarrierWithGroupSync();
+
+	for (uint i = input.GI; i < lightsCount; i += BLOCK_SIZE * BLOCK_SIZE)
+	{
+		_LightsIndexBuffer[startIndexOffset + i] = indices[i];
+	}
+}

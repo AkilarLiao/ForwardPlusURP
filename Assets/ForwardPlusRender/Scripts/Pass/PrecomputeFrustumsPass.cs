@@ -17,15 +17,6 @@ namespace CustomRender
             renderPassEvent = RenderPassEvent.BeforeRendering;
         }
 
-        //~PrecomputeFrustumsPass()
-        //{
-        //    if (m_frustumsBuffer != null)
-        //    {
-        //        m_frustumsBuffer.Release();
-        //        m_frustumsBuffer.Dispose();
-        //    }
-        //}
-
         public void Release()
         {
             if (m_frustumsBuffer != null)
@@ -56,18 +47,18 @@ namespace CustomRender
                     m_frustumsBuffer.Dispose();
                 }
                 int stride = Marshal.SizeOf(typeof(PreBuildFrustum));
-                m_frustumsBuffer = new ComputeBuffer(m_numFrustumsX * m_numFrustumsY, stride);
+                m_frustumsBuffer = new ComputeBuffer(m_numFrustumsX * m_numFrustumsY,
+                    stride);
             }
 #if UNITY_EDITOR
             isScreenResolutionChange = true;
 #endif
             if (isScreenResolutionChange)
             {
-                //m_targetPrecomputeFrustumsCS.SetVector("_ScreenResolutionData",
-                //screenResolutionData);
                 m_targetPrecomputeFrustumsCS.SetVector("_ScreenSizeRatio",
                     screenSizeRatio);
-                m_targetPrecomputeFrustumsCS.SetInts("_FrustumTileSize", frustumTileSize);
+                m_targetPrecomputeFrustumsCS.SetInts("_FrustumTileSize",
+                    frustumTileSize);
                 m_targetPrecomputeFrustumsCS.SetBuffer(m_precomputeFrustumsCSID,
                     "_Frustums", m_frustumsBuffer);                
             }
@@ -105,8 +96,8 @@ namespace CustomRender
             public Plane m_upPlane;
             public Plane m_rightPlane;
             public Plane m_downPlane;
-            public PreBuildFrustum(ref Plane leftPlane, ref Plane upPlane, ref Plane rightPlane,
-                ref Plane downPlane)
+            public PreBuildFrustum(ref Plane leftPlane, ref Plane upPlane,
+                ref Plane rightPlane, ref Plane downPlane)
             {
                 m_leftPlane = leftPlane;
                 m_upPlane = upPlane;

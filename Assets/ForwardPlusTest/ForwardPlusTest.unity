@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -489,6 +489,7 @@ GameObject:
   - component: {fileID: 193540867}
   - component: {fileID: 193540866}
   - component: {fileID: 193540864}
+  - component: {fileID: 193540865}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -513,6 +514,18 @@ MonoBehaviour:
   m_onlyShowFPS: 0
   m_leftSide: 0
   m_displayFPS: 1
+--- !u!114 &193540865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193540863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be82626a1132b6341a8588c4c5109f44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &193540866
 MonoBehaviour:
   m_ObjectHideFlags: 0

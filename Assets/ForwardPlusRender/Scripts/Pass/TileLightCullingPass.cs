@@ -13,13 +13,7 @@ namespace CustomRender
             renderPassEvent = RenderPassEvent.BeforeRenderingPrepasses;   
             m_targetTileLightCullingCS = TileLightCullingCS;
             m_tileLightCullingCSID = m_targetTileLightCullingCS.FindKernel("CSMain");
-            int stride = Marshal.SizeOf(typeof(CustomRender.TileLightCullingPass.
-                LightData)) * 4;
-            if (m_lightListBuffer != null)
-            {
-                m_lightListBuffer.Dispose();
-                m_lightListBuffer = null;
-            }
+            int stride = Marshal.SizeOf(typeof(LightData)) * 4;
             m_lightListBuffer = new ComputeBuffer((int)mc_maxLightCount,
                 stride, ComputeBufferType.Default);
 
@@ -28,11 +22,6 @@ namespace CustomRender
                 "_Lights",
                 m_lightListBuffer);
 
-            if (m_currentLightIndexBuffer != null)
-            {
-                m_currentLightIndexBuffer.Dispose();
-                m_currentLightIndexBuffer = null;
-            }
             m_currentLightIndexBuffer = new ComputeBuffer(1, 4,
                 ComputeBufferType.Default);
             m_currentLightIndexBuffer.SetData(m_zeroLightIndexBuffer);
@@ -56,14 +45,22 @@ namespace CustomRender
         {
             if (m_lightListBuffer != null)
             {
+                m_lightListBuffer.Release();
                 m_lightListBuffer.Dispose();
                 m_lightListBuffer = null;
             }
 
             if (m_currentLightIndexBuffer != null)
             {
+                m_currentLightIndexBuffer.Release();
                 m_currentLightIndexBuffer.Dispose();
                 m_currentLightIndexBuffer = null;
+            }
+            if (m_lightsIndexBuffer != null)
+            {
+                m_lightsIndexBuffer.Release();
+                m_lightsIndexBuffer.Dispose();
+                m_lightsIndexBuffer = null;
             }
 
             if (m_lightsGridRT)

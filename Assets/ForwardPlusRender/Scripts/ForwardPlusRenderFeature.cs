@@ -11,8 +11,8 @@ namespace CustomRender
         {
             if (m_targetPrecomputeFrustumsCS)
             {
-                //if (m_precomputeFrustumsPass != null)
-                    //.Release();
+                if (m_precomputeFrustumsPass != null)
+                    m_precomputeFrustumsPass.Release();
 
                 m_precomputeFrustumsPass = new PrecomputeFrustumsPass(
                     m_targetPrecomputeFrustumsCS);
@@ -24,8 +24,8 @@ namespace CustomRender
 
             if (m_targetForwardPlusLightCullingCS)
             {
-                //if(m_tileLightCullingPass != null)
-                    //m_tileLightCullingPass.Release();
+                if(m_tileLightCullingPass != null)
+                    m_tileLightCullingPass.Release();
 
                 m_tileLightCullingPass = new TileLightCullingPass(
                     m_targetForwardPlusLightCullingCS);
@@ -49,17 +49,17 @@ namespace CustomRender
             m_backgroundRT.Init("_BackGroundRT");
         }
 
-        //private void OnDestroy()
-        //{
-        //    if (m_showDebugTileLightGridMaterial)
-        //        CoreUtils.Destroy(m_showDebugTileLightGridMaterial);
+        private void OnDisable()
+        {
+            if (m_showDebugTileLightGridMaterial)
+                CoreUtils.Destroy(m_showDebugTileLightGridMaterial);
 
-        //    if (m_tileLightCullingPass != null)
-        //        m_tileLightCullingPass.Release();
+            if (m_tileLightCullingPass != null)
+                m_tileLightCullingPass.Release();
 
-        //    if (m_precomputeFrustumsPass != null)
-        //        m_precomputeFrustumsPass.Release();
-        //}
+            if (m_precomputeFrustumsPass != null)
+                m_precomputeFrustumsPass.Release();
+        }
 
         public override void AddRenderPasses(ScriptableRenderer renderer,
             ref RenderingData renderingData)
@@ -67,7 +67,6 @@ namespace CustomRender
             int numFrustumsX, numFrustumsY;            
             Vector2 screenSizeRatio;
             SetupScreenReferenceInfo(ref renderingData, out numFrustumsX, out numFrustumsY,
-                //out screenResolutionData);
                 out screenSizeRatio);
 
             if (m_precomputeFrustumsPass != null)
@@ -114,7 +113,6 @@ namespace CustomRender
         }
 
         private void SetupScreenReferenceInfo(ref RenderingData renderingData,
-            //out int numFrustumsX, out int numFrustumsY, out Vector4 screenResolutionData)
             out int numFrustumsX, out int numFrustumsY, out Vector2 screenSizeRatio)
         {
             Camera camera = renderingData.cameraData.camera;
@@ -139,8 +137,6 @@ namespace CustomRender
             numFrustumsX = (int)System.Math.Ceiling(screenWidth / 16.0f);
             numFrustumsY = (int)System.Math.Ceiling(screenHeight / 16.0f);
 
-            //screenResolutionData = new Vector4(1.0f / screenWidth, 1.0f / screenHeight,
-            //numFrustumsX, numFrustumsY);
             screenSizeRatio  = new Vector2(1.0f / screenWidth, 1.0f / screenHeight);
             m_frustumTileSize[0] = numFrustumsX;
             m_frustumTileSize[1] = numFrustumsY;

@@ -55,7 +55,6 @@ MonoBehaviour:
   m_targetForwardPlusLightCullingCS: {fileID: 7200000, guid: 2e197aa715897784c9543208e1bf19c1,
     type: 3}
   m_samplingShader: {fileID: 4800000, guid: 04c410c9937594faa893a11dceb85f7e, type: 3}
-  m_copyDepthShader: {fileID: 0}
   m_showTileLightGridShader: {fileID: 4800000, guid: ccc88b5f33a5ebf4984a2f0696c70734,
     type: 3}
   m_heatMap: {fileID: 2800000, guid: ed836b9cfa611c140b73ceead7456a7e, type: 3}

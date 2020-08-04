@@ -149,13 +149,6 @@ namespace CustomRender
                 m_worldToViewMatrixFloats);
 
             CommandBuffer cmd = CommandBufferPool.Get("ForwardPlusLightCulling");
-            var depthDescriptor = renderingData.cameraData.cameraTargetDescriptor;
-            depthDescriptor.colorFormat = RenderTextureFormat.RFloat;
-            depthDescriptor.width = 
-                (int)(depthDescriptor.width / renderingData.cameraData.renderScale);
-            depthDescriptor.height = 
-                (int)(depthDescriptor.height / renderingData.cameraData.renderScale);
-            depthDescriptor.depthBufferBits = 32;
             
             cmd.SetComputeTextureParam(m_targetTileLightCullingCS, m_tileLightCullingCSID,
                 "_DepthBuffer", m_copyCameraDepthRTIdentifier);

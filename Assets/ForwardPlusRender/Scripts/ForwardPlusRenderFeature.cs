@@ -76,12 +76,14 @@ namespace CustomRender
                 renderer.EnqueuePass(m_precomputeFrustumsPass);
             }
 
-            renderer.EnqueuePass(m_depthOnlyPass);
+            if (renderingData.cameraData.cameraType == CameraType.Game)
+            {
+                renderer.EnqueuePass(m_depthOnlyPass);
+            }            
 
             if (m_copyDepthPass != null)
             {
-                m_copyDepthPass.Setup(renderer.cameraDepth, 
-                    renderingData.cameraData.renderScale);
+                m_copyDepthPass.Setup(renderer.cameraDepth);
                 renderer.EnqueuePass(m_copyDepthPass);
             }
 
@@ -116,8 +118,11 @@ namespace CustomRender
             out int numFrustumsX, out int numFrustumsY, out Vector2 screenSizeRatio)
         {
             Camera camera = renderingData.cameraData.camera;
+
+
             Matrix4x4 matrix = GL.GetGPUProjectionMatrix(camera.projectionMatrix,
                 false);
+
             matrix = matrix.inverse;
             for (int rowIndex = 0; rowIndex<4; ++rowIndex)
             {
@@ -127,12 +132,15 @@ namespace CustomRender
                         = matrix[columnIndex, rowIndex];
                 }
             }
-            ref RenderTextureDescriptor cameraTargetDescriptor =
-                ref renderingData.cameraData.cameraTargetDescriptor;
-            int screenWidth =
-                (int)(cameraTargetDescriptor.width / renderingData.cameraData.renderScale);
-            int screenHeight =
-                (int)(cameraTargetDescriptor.height / renderingData.cameraData.renderScale);
+            //ref RenderTextureDescriptor cameraTargetDescriptor =
+                //ref renderingData.cameraData.cameraTargetDescriptor;
+            //int screenWidth =
+            //    (int)(cameraTargetDescriptor.width / renderingData.cameraData.renderScale);
+            //int screenHeight =
+            //    (int)(cameraTargetDescriptor.height / renderingData.cameraData.renderScale);
+
+            int screenWidth = Screen.width;
+            int screenHeight = Screen.height;
 
             numFrustumsX = (int)System.Math.Ceiling(screenWidth / 16.0f);
             numFrustumsY = (int)System.Math.Ceiling(screenHeight / 16.0f);

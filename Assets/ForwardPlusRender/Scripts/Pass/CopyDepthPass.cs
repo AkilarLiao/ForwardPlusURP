@@ -12,11 +12,9 @@ namespace CustomRender
             m_copyCameraDepthRT.Init("_CopyCameraDepthRT");
         }
 
-        public void Setup(RenderTargetIdentifier depthRenderTargetIdentifier,
-            float renderScale)
+        public void Setup(RenderTargetIdentifier depthRenderTargetIdentifier)
         {
             m_targetDepthRenderTargetIdentifier = depthRenderTargetIdentifier;
-            m_renderScale = renderScale;
         }
 
         public override void Configure(CommandBuffer cmd,
@@ -26,8 +24,8 @@ namespace CustomRender
             descriptor.colorFormat = RenderTextureFormat.RFloat;
             descriptor.depthBufferBits = 32;
             descriptor.msaaSamples = 1;
-            descriptor.width = (int)(descriptor.width / m_renderScale);
-            descriptor.height = (int)(descriptor.height / m_renderScale);
+            descriptor.width = Screen.width;
+            descriptor.height = Screen.height;
             cmd.GetTemporaryRT(m_copyCameraDepthRT.id, descriptor, FilterMode.Point);
             ConfigureTarget(m_copyCameraDepthRT.Identifier());
         }
@@ -54,6 +52,5 @@ namespace CustomRender
         private RenderTargetHandle m_copyCameraDepthRT;
         private RenderTargetIdentifier m_targetDepthRenderTargetIdentifier;
         const string mc_profilerTag = "Copy Depth";
-        private float m_renderScale = 1.0f;
     }
 }

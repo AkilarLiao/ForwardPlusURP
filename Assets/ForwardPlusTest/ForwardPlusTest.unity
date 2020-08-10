@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -490,6 +490,7 @@ GameObject:
   - component: {fileID: 193540866}
   - component: {fileID: 193540864}
   - component: {fileID: 193540865}
+  - component: {fileID: 193540870}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -622,6 +623,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 47.1, y: 0, z: 0}
+--- !u!114 &193540870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193540863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8e7ef70e2acbaf4ab554be381a39361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_roomInDistance: 10
+  m_secondTouchMode: 0
+  m_roomInMinHeight: 20
+  m_roomInMaxHeight: 500
+  m_destRotationScaleValue: 15
+  m_rotateSpeed: 0.8
+  m_moveSpeed: 10
+  m_speed: 0.1
+  m_accumulateMoveRatio: 1
+  m_useBornInfo: 0
+  m_bornPosition: {x: 0, y: 0, z: 0}
+  m_rotation: {x: 0, y: 0, z: 0}
+  m_ShowPosition: 0
 --- !u!1 &301934364
 GameObject:
   m_ObjectHideFlags: 0

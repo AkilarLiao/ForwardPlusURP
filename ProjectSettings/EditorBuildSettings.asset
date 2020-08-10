@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/ForwardPlusTest/ForwardPlusTest.unity
+    guid: 466f4569c92cc2844922754aaa868563
   m_configObjects: {}
